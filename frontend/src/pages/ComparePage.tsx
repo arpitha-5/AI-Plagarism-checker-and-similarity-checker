@@ -1,0 +1,10 @@
+import { useState } from 'react'
+import { ArrowRight, GitCompare, LoaderCircle } from 'lucide-react'
+import { PageHeader } from '../components/common/PageHeader'
+import { compareTexts, errorMessage } from '../services/api'
+
+export default function ComparePage() {
+  const [a, setA] = useState(''); const [b, setB] = useState(''); const [result, setResult] = useState<{ id?: string; similarity_percentage?: number } | null>(null); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
+  async function submit() { if (!a.trim() || !b.trim()) { setError('Add text to both documents before comparing.'); return } setBusy(true); setError(''); try { setResult(await compareTexts(a, b)) } catch (err) { setError(errorMessage(err)) } finally { setBusy(false) } }
+  return <div><PageHeader eyebrow="Comparison workspace" title="Compare documents" description="Compare two passages and inspect the similarity calculated by the connected service." /><div className="compare-grid"><section className="card"><div className="card-heading"><h2>Document A</h2><span>{a.length} characters</span></div><textarea className="comparison-textarea" value={a} onChange={(e) => setA(e.target.value)} placeholder="Paste the first passage…" /></section><section className="card"><div className="card-heading"><h2>Document B</h2><span>{b.length} characters</span></div><textarea className="comparison-textarea" value={b} onChange={(e) => setB(e.target.value)} placeholder="Paste the second passage…" /></section></div>{error && <div className="form-error page-error">{error}</div>}<button className="button button-primary compare-button" disabled={busy} onClick={submit}>{busy ? <LoaderCircle className="spin" size={16} /> : <GitCompare size={16} />} {busy ? 'Comparing…' : 'Compare passages'} <ArrowRight size={15} /></button>{result && <section className="card result-summary"><span className="eyebrow">Comparison complete</span><strong>{result.similarity_percentage ?? '—'}%</strong><p>Similarity returned by the analysis service. Open the full report when an analysis ID is available: {result.id || 'not provided'}.</p></section>}</div>
+}

@@ -1,0 +1,1 @@
+"""PlagiarismAI backend package."""
